@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* リセットとベース設定 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      min-height: 220px; /* 初期の最小高さ */
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      position: relative;
+      background: white;
+      transition: min-height 0.3s ease;
+    }
+
+    /* プロンプト編集時のbody */
+    body.editing {
+      min-height: 600px;
+    }
+
+    /* メインコンテンツ */
+    .main-content {
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 基本要素のスタイル */
+    h2 {
+      font-size: 16px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    button {
+      width: 100%;
+      padding: 8px 16px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4285f4;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      display: block;
+    }
+
+    button:hover {
+      background-color: #3367d6;
+    }
+
+    /* ボタングループ */
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+
+    .button-row button {
+      margin-bottom: 0;
+      flex: 1;
+    }
+
+    /* ステータス表示 */
+    #status {
+      margin-top: 8px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    /* プロンプト編集画面のスタイル */
+    #promptContainer {
+      display: none;
+      position: absolute;
+      top: 220px; /* メインコンテンツの下に配置 */
+      left: 16px;
+      right: 16px;
+      height: 360px; /* 固定の高さ */
+      background: white;
+      padding: 16px;
+      z-index: 1000;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #promptContainer.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    /* プロンプトエディタの調整 */
+    #promptEditor {
+      width: 100%;
+      height: calc(100% - 60px); /* ボタン分の高さを引く */
+      padding: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+      resize: none;
+    }
+
+    /* ボタンコンテナの配置 */
+    .button-container {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* オーバーレイ */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.visible {
+      display: block;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- メインコンテンツ -->
+  <div class="main-content" role="main">
+    <h2>YouTube 要約アシスタント</h2>
+    <button id="getTranscript" aria-label="文字起こしをコピー">文字起こしをコピー</button>
+    <div class="button-row">
+      <button id="sendToChatGPT" aria-label="ChatGPTで分析">ChatGPT</button>
+      <button id="sendToGemini" aria-label="Geminiで分析">Gemini</button>
+      <button id="sendToClaude" aria-label="Claudeで分析">Claude</button>
+    </div>
+    <button id="togglePrompt" aria-label="プロンプトを編集">プロンプトを編集</button>
+    <div id="status" role="status" aria-live="polite">準備完了</div>
+  </div>
+
+  <!-- オーバーレイ要素の追加 -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- プロンプト編集画面のHTML部分も追加 -->
+  <div id="promptContainer">
+    <textarea id="promptEditor"></textarea>
+    <div class="button-container">
+      <button id="savePrompt">保存</button>
+      <button id="resetPrompt">リセット</button>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html> 
