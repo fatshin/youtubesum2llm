@@ -1,4 +1,5 @@
-export const defaultPrompt = `# YouTube動画文字起こし分析プロトコル
+export const defaultPrompt = `# 以下の文字起こしを忠実に分析して、要約と引用を生成してください。
+
 
 ## 入力情報
 動画URL: {{VIDEO_URL}}
