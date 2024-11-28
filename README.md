@@ -1,0 +1,2 @@
+# youtubesum2llm
+youtube動画の文字起こしから要約を作成する
