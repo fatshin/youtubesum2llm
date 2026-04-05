@@ -1,13 +1,12 @@
 /**
  * SumVid - Transcript Extractor
- * Uses YouTube's InnerTube Captions API to fetch transcript data directly.
  *
- * IMPORTANT: Chrome extension content scripts run in an "isolated world"
- * and CANNOT access window.ytInitialPlayerResponse directly.
- * We solve this by:
- *   1. Injecting a script into the page's MAIN world to read the variable
- *   2. Parsing script tags in the HTML as fallback
- *   3. DOM scraping as last resort
+ * CRITICAL: Content scripts run in Chrome's ISOLATED WORLD.
+ * They CANNOT access window.ytInitialPlayerResponse.
+ * YouTube's CSP blocks inline <script> injection.
+ *
+ * Solution: Parse the raw HTML of <script> tags to find captionTracks,
+ * then fetch transcript via YouTube's timedtext JSON API.
  */
 
 (() => {
@@ -47,93 +46,60 @@
   }
 
   /**
-   * Strategy 1: Inject script into MAIN world to read ytInitialPlayerResponse
-   * Content scripts can't access page JS variables, so we inject a <script>
-   * that reads the variable and posts it back via a DOM element.
+   * Extract caption track URL by parsing ALL <script> tags in the page.
+   * This works in the isolated world because we're reading DOM text content,
+   * not accessing JS variables.
    */
-  function getCaptionUrlFromMainWorld() {
-    return new Promise((resolve) => {
-      const dataEl = document.createElement('div');
-      dataEl.id = '__sumvid_caption_data';
-      dataEl.style.display = 'none';
-      document.body.appendChild(dataEl);
+  function getCaptionUrlFromHTML() {
+    const html = document.documentElement.innerHTML;
 
-      const script = document.createElement('script');
-      script.textContent = `
-        (function() {
-          try {
-            var el = document.getElementById('__sumvid_caption_data');
-            var pr = window.ytInitialPlayerResponse;
-            if (pr && pr.captions && pr.captions.playerCaptionsTracklistRenderer) {
-              var tracks = pr.captions.playerCaptionsTracklistRenderer.captionTracks || [];
-              el.setAttribute('data-tracks', JSON.stringify(tracks));
-            } else {
-              // Try ytplayer.config
-              var cfg = window.ytplayer && window.ytplayer.config;
-              if (cfg && cfg.args && cfg.args.raw_player_response) {
-                var pr2 = cfg.args.raw_player_response;
-                if (pr2.captions && pr2.captions.playerCaptionsTracklistRenderer) {
-                  var tracks2 = pr2.captions.playerCaptionsTracklistRenderer.captionTracks || [];
-                  el.setAttribute('data-tracks', JSON.stringify(tracks2));
-                }
-              }
-            }
-          } catch(e) {
-            el.setAttribute('data-error', e.message);
-          }
-        })();
-      `;
-      document.body.appendChild(script);
+    // Method 1: Find timedtext URL directly (most reliable)
+    // YouTube embeds URLs like: "baseUrl":"https://www.youtube.com/api/timedtext?v=..."
+    const timedtextMatch = html.match(
+      /"baseUrl"\s*:\s*"(https?:\/\/www\.youtube\.com\/api\/timedtext[^"]+)"/
+    );
+    if (timedtextMatch) {
+      // Decode unicode escapes (\u0026 -> &)
+      return timedtextMatch[1]
+        .replace(/\\u0026/g, '&')
+        .replace(/\\\//g, '/');
+    }
 
-      // Read result synchronously (script runs immediately in main world)
-      setTimeout(() => {
-        try {
-          const tracksJson = dataEl.getAttribute('data-tracks');
-          if (tracksJson) {
-            const tracks = JSON.parse(tracksJson);
-            if (tracks.length > 0) {
-              const asrTrack = tracks.find(t => t.kind === 'asr');
-              const track = asrTrack || tracks[0];
-              resolve(track.baseUrl);
-              return;
-            }
-          }
-        } catch {}
-        resolve(null);
+    // Method 2: Try to find captionTracks array and parse first baseUrl
+    const captionTracksMatch = html.match(/"captionTracks"\s*:\s*\[([\s\S]*?)\]/);
+    if (captionTracksMatch) {
+      const trackMatch = captionTracksMatch[1].match(/"baseUrl"\s*:\s*"([^"]+)"/);
+      if (trackMatch) {
+        return trackMatch[1]
+          .replace(/\\u0026/g, '&')
+          .replace(/\\\//g, '/');
+      }
+    }
 
-        // Cleanup
-        dataEl.remove();
-        script.remove();
-      }, 100);
-    });
+    return null;
   }
 
   /**
-   * Strategy 2: Parse caption URLs from HTML script tags
+   * For SPA navigation: try to get caption URL from the network by
+   * fetching the page HTML directly
    */
-  function getCaptionUrlFromScriptTags() {
+  async function getCaptionUrlFromFetch() {
     try {
-      const scripts = document.querySelectorAll('script');
-      for (const script of scripts) {
-        const text = script.textContent || '';
-        if (!text.includes('captionTracks')) continue;
+      const videoId = new URL(window.location.href).searchParams.get('v');
+      if (!videoId) return null;
 
-        // Match the captionTracks array in ytInitialPlayerResponse
-        const match = text.match(/"captionTracks"\s*:\s*(\[[\s\S]*?\])\s*,\s*"audioTracks"/);
-        if (match) {
-          const tracks = JSON.parse(match[1]);
-          if (tracks.length > 0) {
-            const asrTrack = tracks.find(t => t.kind === 'asr');
-            const track = asrTrack || tracks[0];
-            return track.baseUrl;
-          }
-        }
+      const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+        credentials: 'include',
+      });
+      const html = await resp.text();
 
-        // Alternative: simpler regex
-        const match2 = text.match(/"baseUrl"\s*:\s*"(https:\/\/www\.youtube\.com\/api\/timedtext[^"]+)"/);
-        if (match2) {
-          return match2[1].replace(/\\u0026/g, '&');
-        }
+      const match = html.match(
+        /"baseUrl"\s*:\s*"(https?:\/\/www\.youtube\.com\/api\/timedtext[^"]+)"/
+      );
+      if (match) {
+        return match[1]
+          .replace(/\\u0026/g, '&')
+          .replace(/\\\//g, '/');
       }
     } catch {}
     return null;
@@ -143,9 +109,10 @@
    * Fetch transcript JSON from YouTube's timedtext API
    */
   async function fetchTranscriptFromAPI(captionUrl) {
+    // Use json3 format for structured JSON
     const url = captionUrl + '&fmt=json3';
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`Transcript fetch failed: ${response.status}`);
+    if (!response.ok) throw new Error(`Transcript API error: ${response.status}`);
 
     const data = await response.json();
     const events = data.events || [];
@@ -161,7 +128,6 @@
       const hours = Math.floor(totalSec / 3600);
       const mins = Math.floor((totalSec % 3600) / 60);
       const secs = totalSec % 60;
-
       const timestamp = hours > 0
         ? `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
         : `${mins}:${String(secs).padStart(2, '0')}`;
@@ -172,7 +138,7 @@
   }
 
   /**
-   * Strategy 3: DOM scraping fallback
+   * DOM scraping fallback
    */
   async function fetchTranscriptFromDOM() {
     const expandBtn = document.querySelector('#description-inline-expander #expand');
@@ -181,12 +147,11 @@
       await new Promise(r => setTimeout(r, 500));
     }
 
-    const buttonSelectors = [
+    for (const sel of [
       'ytd-video-description-transcript-section-renderer button',
       'button[aria-label="Show transcript"]',
       'button[aria-label="文字起こしを表示"]',
-    ];
-    for (const sel of buttonSelectors) {
+    ]) {
       const btn = document.querySelector(sel);
       if (btn) { btn.click(); await new Promise(r => setTimeout(r, 3000)); break; }
     }
@@ -202,18 +167,8 @@
       return Array.from(modern).map(seg => {
         const ts = seg.querySelector('.ytwTranscriptSegmentViewModelTimestamp');
         const txt = seg.querySelector('span.yt-core-attributed-string');
-        const timestamp = ts?.textContent?.trim() || '';
         const text = txt?.textContent?.trim() || '';
-        return text ? { timestamp, text } : null;
-      }).filter(Boolean);
-    }
-
-    const legacy = panel.querySelectorAll('ytd-transcript-segment-renderer');
-    if (legacy.length > 0) {
-      return Array.from(legacy).map(seg => {
-        const ts = seg.querySelector('.segment-timestamp');
-        const txt = seg.querySelector('.segment-text');
-        return (txt?.textContent?.trim()) ? { timestamp: ts?.textContent?.trim() || '', text: txt.textContent.trim() } : null;
+        return text ? { timestamp: ts?.textContent?.trim() || '', text } : null;
       }).filter(Boolean);
     }
 
@@ -221,24 +176,24 @@
   }
 
   /**
-   * Main extraction: API (main world inject → script tag parse) → DOM fallback
+   * Main: HTML parse → re-fetch page → DOM fallback
    */
   async function getTranscript() {
-    // Strategy 1: Inject into main world to get caption URL
-    let captionUrl = await getCaptionUrlFromMainWorld();
+    // Strategy 1: Parse caption URL from current page HTML
+    let captionUrl = getCaptionUrlFromHTML();
 
-    // Strategy 2: Parse from script tags
+    // Strategy 2: Re-fetch the page HTML (handles SPA navigation)
     if (!captionUrl) {
-      captionUrl = getCaptionUrlFromScriptTags();
+      captionUrl = await getCaptionUrlFromFetch();
     }
 
-    // Fetch via API if we have a URL
+    // Use API if we have a caption URL
     if (captionUrl) {
       try {
         const segments = await fetchTranscriptFromAPI(captionUrl);
         if (segments.length > 0) return segments;
       } catch (e) {
-        console.warn('SumVid: API fetch failed, trying DOM', e);
+        console.warn('SumVid: API failed, trying DOM fallback', e);
       }
     }
 
