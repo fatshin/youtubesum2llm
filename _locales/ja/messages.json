@@ -1,0 +1,152 @@
+{
+  "extName": {
+    "message": "SumVid - 動画文字起こし & AI要約",
+    "description": "拡張機能名"
+  },
+  "extDescription": {
+    "message": "動画の文字起こしをタイムスタンプ付きで取得し、ChatGPT・Gemini・Claudeに送信してAI要約を生成します。",
+    "description": "拡張機能の説明"
+  },
+  "panelTitle": {
+    "message": "SumVid",
+    "description": "サイドパネルのタイトル"
+  },
+  "btnGetTranscript": {
+    "message": "文字起こしを取得",
+    "description": "文字起こし取得ボタン"
+  },
+  "btnCopy": {
+    "message": "コピー",
+    "description": "クリップボードにコピー"
+  },
+  "btnSendTo": {
+    "message": "$AI_SERVICE$ に送信",
+    "description": "AIサービスに送信",
+    "placeholders": {
+      "ai_service": {
+        "content": "$1",
+        "example": "ChatGPT"
+      }
+    }
+  },
+  "btnEditPrompt": {
+    "message": "プロンプトを編集",
+    "description": "プロンプトエディタを開く"
+  },
+  "btnSave": {
+    "message": "保存",
+    "description": "保存ボタン"
+  },
+  "btnReset": {
+    "message": "リセット",
+    "description": "デフォルトに戻す"
+  },
+  "btnCancel": {
+    "message": "キャンセル",
+    "description": "キャンセルボタン"
+  },
+  "statusReady": {
+    "message": "準備完了",
+    "description": "初期ステータス"
+  },
+  "statusLoading": {
+    "message": "文字起こしを取得中...",
+    "description": "読み込み中ステータス"
+  },
+  "statusCopied": {
+    "message": "文字起こしをクリップボードにコピーしました",
+    "description": "コピー成功ステータス"
+  },
+  "statusSent": {
+    "message": "$AI_SERVICE$ に送信しました",
+    "description": "AIサービスに送信成功",
+    "placeholders": {
+      "ai_service": {
+        "content": "$1",
+        "example": "Claude"
+      }
+    }
+  },
+  "statusPasteManually": {
+    "message": "クリップボードにコピーしました。手動でペーストしてください (Ctrl+V / Cmd+V)。",
+    "description": "手動ペーストの案内"
+  },
+  "errorNotYoutube": {
+    "message": "YouTubeの動画ページを開いてから実行してください。",
+    "description": "YouTube以外でのエラー"
+  },
+  "errorNoTranscript": {
+    "message": "この動画の文字起こしが見つかりませんでした。",
+    "description": "文字起こしが見つからないエラー"
+  },
+  "errorGeneric": {
+    "message": "エラーが発生しました: $ERROR$",
+    "description": "一般的なエラーメッセージ",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "ネットワークエラー"
+      }
+    }
+  },
+  "settingsTitle": {
+    "message": "設定",
+    "description": "設定ページタイトル"
+  },
+  "settingsDefaultAI": {
+    "message": "デフォルトのAIサービス",
+    "description": "デフォルトAI設定"
+  },
+  "settingsAutoOpen": {
+    "message": "動画ページでパネルを自動表示",
+    "description": "自動表示設定"
+  },
+  "settingsTimestamps": {
+    "message": "タイムスタンプを表示",
+    "description": "タイムスタンプ表示設定"
+  },
+  "settingsMetadata": {
+    "message": "動画メタデータをプロンプトに含める",
+    "description": "メタデータ設定"
+  },
+  "templateSummary": {
+    "message": "要約",
+    "description": "要約テンプレート名"
+  },
+  "templateKeypoints": {
+    "message": "キーポイント抽出",
+    "description": "キーポイントテンプレート名"
+  },
+  "templateMindmap": {
+    "message": "マインドマップ",
+    "description": "マインドマップテンプレート名"
+  },
+  "templateQuiz": {
+    "message": "クイズ生成",
+    "description": "クイズテンプレート名"
+  },
+  "templateTranslation": {
+    "message": "翻訳+要約",
+    "description": "翻訳テンプレート名"
+  },
+  "templateNotes": {
+    "message": "学習ノート",
+    "description": "学習ノートテンプレート名"
+  },
+  "templateCustom": {
+    "message": "カスタム",
+    "description": "カスタムテンプレート名"
+  },
+  "transcriptEmpty": {
+    "message": "文字起こしが見つかりませんでした。この動画には字幕がない可能性があります。",
+    "description": "文字起こしが空の場合"
+  },
+  "panelCollapse": {
+    "message": "パネルを閉じる",
+    "description": "折りたたみボタンのツールチップ"
+  },
+  "panelExpand": {
+    "message": "パネルを開く",
+    "description": "展開ボタンのツールチップ"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "summary": {
+    "name": "Summary",
+    "nameJa": "要約",
+    "icon": "📝",
+    "description": "Comprehensive summary with key points and timestamps",
+    "descriptionJa": "タイムスタンプ付きの包括的な要約",
+    "prompt": "# Please analyze the following transcript and generate a summary with citations.\n\n## Input\n- Video URL: {{VIDEO_URL}}\n- Title: {{TITLE}}\n- Channel: {{CHANNEL}}\n- Duration: {{DURATION}}\n- Published: {{DATE}}\n\n## Transcript\n{{TRANSCRIPT}}\n\n## Analysis Instructions\n\n### 1. Text Preprocessing\n- Normalize punctuation and sentence boundaries\n- Remove spoken-language redundancies\n- Resolve ambiguous pronouns and references\n\n### 2. Multi-Level Summary\nInclude [HH:MM:SS] timestamps for each point.\n\n**Core Summary (by importance):**\n- [Time] Importance[1-5]: Key point\n...\n\n**Detailed Analysis (chronological):**\n1. [Time] Topic\n   - Main arguments\n   - Examples and supporting details\n2. [Time] Topic\n   ...\n\n### 3. Key Quotes\n- [Time] \"Direct quote\" - Context and significance\n...\n\n### 4. Meta-Analysis\n**Supporting arguments:**\n- [Time] Point 1\n...\n\n**Counterarguments:**\n- [Time] Point 1\n...\n\n### 5. Conclusions\n- [Time] Main conclusion\n- Overall implications\n\n## Quality Checklist\n- [ ] All key points have timestamps\n- [ ] Quote accuracy verified\n- [ ] Context preserved in summary\n- [ ] Multiple perspectives included"
+  },
+  "keypoints": {
+    "name": "Key Points",
+    "nameJa": "キーポイント抽出",
+    "icon": "🎯",
+    "description": "Extract the most important takeaways",
+    "descriptionJa": "最も重要なポイントを抽出",
+    "prompt": "# Extract Key Points from Video\n\n## Input\n- Video URL: {{VIDEO_URL}}\n- Title: {{TITLE}}\n- Channel: {{CHANNEL}}\n- Duration: {{DURATION}}\n\n## Transcript\n{{TRANSCRIPT}}\n\n## Instructions\nExtract the top 5-10 most important takeaways from this video.\n\nFor each key point:\n1. **[HH:MM:SS] Key Point**: One clear sentence\n2. **Why it matters**: Brief explanation\n3. **Supporting evidence**: Quote or detail from the video\n\nOutput format:\n### Key Takeaways\n\n1. **[00:00:00] [Key Point Title]**\n   - Summary: ...\n   - Why it matters: ...\n   - Quote: \"...\"\n\n### Quick Reference\n- Bullet list of all key points for easy scanning\n\n### Action Items\n- Practical next steps based on the content"
+  },
+  "mindmap": {
+    "name": "Mind Map",
+    "nameJa": "マインドマップ",
+    "icon": "🗺️",
+    "description": "Hierarchical topic structure in markdown",
+    "descriptionJa": "マークダウン形式の階層的トピック構造",
+    "prompt": "# Generate Mind Map Structure\n\n## Input\n- Video URL: {{VIDEO_URL}}\n- Title: {{TITLE}}\n- Channel: {{CHANNEL}}\n\n## Transcript\n{{TRANSCRIPT}}\n\n## Instructions\nCreate a hierarchical mind map of the video content in markdown format.\n\nFormat:\n# Central Topic: [Video Main Theme]\n\n## Branch 1: [Major Topic]\n### Sub-topic 1.1\n- Detail\n### Sub-topic 1.2\n- Detail\n\n## Branch 2: [Major Topic]\n### Sub-topic 2.1\n- Detail\n\n## Connections\n- [Topic A] <-> [Topic B]: Relationship description\n\n## Summary\nOne paragraph synthesizing all branches."
+  },
+  "quiz": {
+    "name": "Quiz",
+    "nameJa": "クイズ生成",
+    "icon": "❓",
+    "description": "Generate quiz questions for learning review",
+    "descriptionJa": "学習レビュー用のクイズを生成",
+    "prompt": "# Generate Quiz from Video Content\n\n## Input\n- Video URL: {{VIDEO_URL}}\n- Title: {{TITLE}}\n\n## Transcript\n{{TRANSCRIPT}}\n\n## Instructions\nCreate a comprehensive quiz to test understanding of this video's content.\n\nGenerate:\n\n### Multiple Choice (5 questions)\n1. Question?\n   a) Option A\n   b) Option B\n   c) Option C\n   d) Option D\n   **Answer**: X — Explanation [HH:MM:SS]\n\n### True/False (5 questions)\n1. Statement\n   **Answer**: True/False — Explanation [HH:MM:SS]\n\n### Short Answer (3 questions)\n1. Question?\n   **Expected Answer**: ... [HH:MM:SS]\n\n### Answer Key\nComplete answers with video timestamp references."
+  },
+  "translation": {
+    "name": "Translate & Summarize",
+    "nameJa": "翻訳+要約",
+    "icon": "🌐",
+    "description": "Translate and summarize in your preferred language",
+    "descriptionJa": "希望言語に翻訳して要約",
+    "prompt": "# Translate and Summarize\n\n## Input\n- Video URL: {{VIDEO_URL}}\n- Title: {{TITLE}}\n- Channel: {{CHANNEL}}\n- Duration: {{DURATION}}\n\n## Transcript\n{{TRANSCRIPT}}\n\n## Instructions\n1. Detect the original language of the transcript\n2. Translate the content to Japanese if original is not Japanese, or to English if original is Japanese\n3. Provide:\n\n### Translation Summary\n- **Original Language**: [detected language]\n- **Translated To**: [target language]\n\n### Translated Summary (500 words max)\n[Comprehensive summary in target language with [HH:MM:SS] timestamps]\n\n### Key Terms Glossary\n| Original Term | Translation | Context |\n|--------------|-------------|--------|\n| term | translation | context |\n\n### Important Quotes (translated)\n- [Time] \"Translated quote\" (Original: \"original quote\")"
+  },
+  "notes": {
+    "name": "Study Notes",
+    "nameJa": "学習ノート",
+    "icon": "📚",
+    "description": "Structured study notes with Cornell method",
+    "descriptionJa": "コーネル式の構造化された学習ノート",
+    "prompt": "# Generate Study Notes (Cornell Method)\n\n## Input\n- Video URL: {{VIDEO_URL}}\n- Title: {{TITLE}}\n- Channel: {{CHANNEL}}\n- Duration: {{DURATION}}\n- Date: {{DATE}}\n\n## Transcript\n{{TRANSCRIPT}}\n\n## Instructions\nCreate study notes using the Cornell Note-Taking method.\n\n### Header\n- **Subject**: [Topic]\n- **Source**: {{TITLE}} by {{CHANNEL}}\n- **Date**: {{DATE}}\n\n### Notes Section (Right Column)\n[Detailed notes organized by topic with timestamps]\n\n#### Topic 1 [HH:MM:SS]\n- Main point\n  - Supporting detail\n  - Example\n\n### Cue Column (Left)\n- Key questions that the notes answer\n- Keywords and concepts\n\n### Summary (Bottom)\n5-7 sentence summary of the entire content.\n\n### Review Questions\n1. Question for self-testing\n2. Question for self-testing\n3. Question for self-testing"
+  }
+}

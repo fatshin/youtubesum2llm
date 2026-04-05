@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1 data-i18n="panelTitle">SumVid</h1>
+      <span class="version">v2.0</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" role="tab" data-tab="templates" aria-selected="true" data-i18n="templateCustom">Templates</button>
+    <button class="tab" role="tab" data-tab="settings" aria-selected="false" data-i18n="settingsTitle">Settings</button>
+  </div>
+
+  <!-- Templates Tab -->
+  <div class="tab-content active" id="tab-templates" role="tabpanel">
+    <div class="section">
+      <div class="section-title" data-i18n="btnEditPrompt">Prompt Templates</div>
+      <div class="template-list" id="templateList"></div>
+    </div>
+
+    <div class="section" id="editorSection" style="display: none;">
+      <div class="section-title" id="editorTitle">Edit Template</div>
+      <textarea class="prompt-editor" id="promptEditor"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnSavePrompt" data-i18n="btnSave">Save</button>
+        <button class="btn btn-secondary" id="btnResetPrompt" data-i18n="btnReset">Reset</button>
+        <button class="btn btn-secondary" id="btnCancelEdit" data-i18n="btnCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div class="tab-content" id="tab-settings" role="tabpanel">
+    <div class="section">
+      <div class="section-title">AI Service</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" data-i18n="settingsDefaultAI">Default AI Service</div>
+        </div>
+        <select id="settingDefaultAI">
+          <option value="chatgpt">ChatGPT</option>
+          <option value="gemini">Gemini</option>
+          <option value="claude">Claude</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Panel</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" data-i18n="settingsAutoOpen">Auto-open on video pages</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="settingAutoOpen">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" data-i18n="settingsTimestamps">Show timestamps</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="settingTimestamps" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" data-i18n="settingsMetadata">Include video metadata</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="settingMetadata" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Footer -->
+  <div class="footer">
+    SumVid &mdash; Open Source Video AI Summary
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

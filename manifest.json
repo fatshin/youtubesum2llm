@@ -1,52 +1,76 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Transcript Assistant",
-  "version": "1.0",
-  "description": "YouTube動画の文字起こしを取得し、AIサービスに送信する拡張機能",
+  "name": "__MSG_extName__",
+  "version": "2.0.0",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
     "clipboardWrite",
-    "clipboardRead"
+    "offscreen"
   ],
   "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://chatgpt.com/*",
     "https://chat.openai.com/*",
-    "https://aistudio.google.com/*",
-    "https://claude.ai/*",
-    "https://www.youtube.com/*"
+    "https://gemini.google.com/*",
+    "https://claude.ai/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://chat.openai.com/*",
-        "https://aistudio.google.com/*",
-        "https://claude.ai/*",
         "https://www.youtube.com/*"
       ],
-      "js": ["content.js"]
+      "js": [
+        "src/content/transcript-extractor.js",
+        "src/content/youtube-panel.js"
+      ],
+      "css": [
+        "src/content/youtube-panel.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*",
+        "https://claude.ai/*"
+      ],
+      "js": [
+        "src/content/ai-paste.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background/background.js",
+    "type": "module"
   },
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "src/popup/popup.html",
     "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
+      "16": "src/assets/icons/icon16.png",
+      "48": "src/assets/icons/icon48.png",
+      "128": "src/assets/icons/icon128.png"
     }
   },
   "icons": {
-    "16": "images/icon16.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
+    "16": "src/assets/icons/icon16.png",
+    "48": "src/assets/icons/icon48.png",
+    "128": "src/assets/icons/icon128.png"
   },
   "web_accessible_resources": [
     {
-      "resources": ["prompt-template.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "src/lib/prompt-templates.json",
+        "src/content/youtube-panel.css"
+      ],
+      "matches": [
+        "https://www.youtube.com/*"
+      ]
     }
   ]
-} 
+}

@@ -1,0 +1,152 @@
+{
+  "extName": {
+    "message": "SumVid - Video Transcript & AI Summary",
+    "description": "Extension name shown in Chrome Web Store and browser"
+  },
+  "extDescription": {
+    "message": "Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude for intelligent summarization.",
+    "description": "Extension description shown in Chrome Web Store"
+  },
+  "panelTitle": {
+    "message": "SumVid",
+    "description": "Title shown in the YouTube side panel"
+  },
+  "btnGetTranscript": {
+    "message": "Get Transcript",
+    "description": "Button to extract transcript"
+  },
+  "btnCopy": {
+    "message": "Copy",
+    "description": "Copy to clipboard button"
+  },
+  "btnSendTo": {
+    "message": "Send to $AI_SERVICE$",
+    "description": "Send transcript to an AI service",
+    "placeholders": {
+      "ai_service": {
+        "content": "$1",
+        "example": "ChatGPT"
+      }
+    }
+  },
+  "btnEditPrompt": {
+    "message": "Edit Prompt",
+    "description": "Open prompt editor"
+  },
+  "btnSave": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "btnReset": {
+    "message": "Reset",
+    "description": "Reset to defaults"
+  },
+  "btnCancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "statusReady": {
+    "message": "Ready",
+    "description": "Initial status message"
+  },
+  "statusLoading": {
+    "message": "Extracting transcript...",
+    "description": "Loading status"
+  },
+  "statusCopied": {
+    "message": "Transcript copied to clipboard",
+    "description": "Copy success status"
+  },
+  "statusSent": {
+    "message": "Sent to $AI_SERVICE$",
+    "description": "Sent to AI service status",
+    "placeholders": {
+      "ai_service": {
+        "content": "$1",
+        "example": "Claude"
+      }
+    }
+  },
+  "statusPasteManually": {
+    "message": "Copied to clipboard. Please paste manually (Ctrl+V / Cmd+V).",
+    "description": "Fallback paste instruction"
+  },
+  "errorNotYoutube": {
+    "message": "Please open a YouTube video page first.",
+    "description": "Error when not on YouTube"
+  },
+  "errorNoTranscript": {
+    "message": "Could not find transcript for this video.",
+    "description": "Error when transcript not available"
+  },
+  "errorGeneric": {
+    "message": "An error occurred: $ERROR$",
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "content": "$1",
+        "example": "Network error"
+      }
+    }
+  },
+  "settingsTitle": {
+    "message": "Settings",
+    "description": "Settings page title"
+  },
+  "settingsDefaultAI": {
+    "message": "Default AI Service",
+    "description": "Setting for default AI service"
+  },
+  "settingsAutoOpen": {
+    "message": "Auto-open panel on video pages",
+    "description": "Setting for auto-opening panel"
+  },
+  "settingsTimestamps": {
+    "message": "Show timestamps",
+    "description": "Setting for showing timestamps"
+  },
+  "settingsMetadata": {
+    "message": "Include video metadata in prompts",
+    "description": "Setting for including metadata"
+  },
+  "templateSummary": {
+    "message": "Summary",
+    "description": "Summary template name"
+  },
+  "templateKeypoints": {
+    "message": "Key Points",
+    "description": "Key points template name"
+  },
+  "templateMindmap": {
+    "message": "Mind Map",
+    "description": "Mind map template name"
+  },
+  "templateQuiz": {
+    "message": "Quiz",
+    "description": "Quiz template name"
+  },
+  "templateTranslation": {
+    "message": "Translate & Summarize",
+    "description": "Translation template name"
+  },
+  "templateNotes": {
+    "message": "Study Notes",
+    "description": "Study notes template name"
+  },
+  "templateCustom": {
+    "message": "Custom",
+    "description": "Custom template name"
+  },
+  "transcriptEmpty": {
+    "message": "No transcript segments found. This video may not have subtitles.",
+    "description": "Message when transcript is empty"
+  },
+  "panelCollapse": {
+    "message": "Collapse panel",
+    "description": "Tooltip for collapse button"
+  },
+  "panelExpand": {
+    "message": "Expand panel",
+    "description": "Tooltip for expand button"
+  }
+}
