@@ -1,16 +1,24 @@
 /**
  * SumVid - Transcript Extractor
- * Extracts transcripts from YouTube video pages with robust selector fallbacks.
- * Injected as content script on youtube.com.
+ * Extracts transcripts from YouTube video pages.
+ *
+ * YouTube has migrated to a "modern transcript view" using Web Components:
+ *   - Panel: [target-id="PAmodern_transcript_view"] (replaces #segments-container)
+ *   - Segment: <transcript-segment-view-model> (replaces ytd-transcript-segment-renderer)
+ *   - Timestamp: .ytwTranscriptSegmentViewModelTimestamp
+ *   - Text: span.yt-core-attributed-string inside <transcript-segment-view-model>
+ *
+ * Legacy selectors are kept as fallbacks for older YouTube versions.
  */
 
 (() => {
   'use strict';
 
-  // Selector definitions (inlined to avoid module import issues in content scripts)
+  // --- Transcript button selectors (multi-language) ---
   const TRANSCRIPT_BUTTON_SELECTORS = [
+    // Structural (most stable)
     'ytd-video-description-transcript-section-renderer button',
-    '#primary-button ytd-button-renderer button',
+    // aria-label variants
     'button[aria-label="Show transcript"]',
     'button[aria-label="Open transcript"]',
     'button[aria-label="文字起こしを表示"]',
@@ -23,17 +31,21 @@
     'button[aria-label="顯示逐字稿"]',
   ];
 
+  // --- Transcript panel selectors (modern first, legacy fallback) ---
   const TRANSCRIPT_PANEL_SELECTORS = [
-    '#segments-container',
-    'ytd-transcript-renderer #segments-container',
+    // Modern YouTube (2025+)
+    'ytd-engagement-panel-section-list-renderer[target-id="PAmodern_transcript_view"]',
+    // Legacy YouTube
     'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]',
+    '#segments-container',
   ];
 
+  // --- Video metadata selectors ---
   const VIDEO_METADATA_SELECTORS = {
     title: [
       'h1.ytd-watch-metadata yt-formatted-string',
-      'h1.ytd-video-primary-info-renderer',
       '#title h1 yt-formatted-string',
+      'h1.ytd-video-primary-info-renderer',
     ],
     channel: [
       'ytd-channel-name yt-formatted-string a',
@@ -58,13 +70,13 @@
       try {
         const el = root.querySelector(sel);
         if (el) return el;
-      } catch { /* skip */ }
+      } catch { /* skip invalid selectors */ }
     }
     return null;
   }
 
   /**
-   * Wait for an element using MutationObserver (efficient, no rAF polling)
+   * Wait for an element using MutationObserver
    */
   function waitForElement(selectors, timeout = 10000) {
     return new Promise((resolve) => {
@@ -94,7 +106,6 @@
     const getText = (selectors) => {
       const el = queryFirst(selectors);
       if (!el) return '';
-      // Handle meta tags
       if (el.tagName === 'META') return el.getAttribute('content') || '';
       return el.textContent?.trim() || '';
     };
@@ -115,17 +126,23 @@
   }
 
   /**
-   * Click the transcript button to open the transcript panel
+   * Open the transcript panel
    */
   async function openTranscriptPanel() {
-    // Check if panel is already open
-    const existingPanel = queryFirst(TRANSCRIPT_PANEL_SELECTORS);
-    if (existingPanel && existingPanel.children.length > 0) {
-      return existingPanel;
+    // Check if a transcript panel is already open (visible)
+    for (const sel of TRANSCRIPT_PANEL_SELECTORS) {
+      try {
+        const panel = document.querySelector(sel);
+        if (panel) {
+          const vis = panel.getAttribute('visibility');
+          if (vis === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') return panel;
+          // For #segments-container (legacy), check children
+          if (sel === '#segments-container' && panel.children.length > 0) return panel;
+        }
+      } catch { /* skip */ }
     }
 
-    // Step 1: Expand description ("...more") if collapsed
-    // The transcript button may be hidden until description is expanded
+    // Step 1: Expand description if collapsed (transcript button may be hidden)
     const expandBtn = document.querySelector('#description-inline-expander #expand')
       || document.querySelector('tp-yt-paper-button#expand')
       || document.querySelector('#expand');
@@ -134,57 +151,104 @@
       await new Promise(r => setTimeout(r, 500));
     }
 
-    // Step 2: Try to find and click the transcript button
+    // Step 2: Click the transcript button
     const descButton = queryFirst(TRANSCRIPT_BUTTON_SELECTORS);
     if (descButton) {
       descButton.click();
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 2500));
     } else {
-      // Try the "..." menu approach
+      // Try "..." menu approach as fallback
       const moreButton = document.querySelector('#button-shape button[aria-label="More actions"]')
         || document.querySelector('#button-shape button[aria-label="その他の操作"]');
       if (moreButton) {
         moreButton.click();
         await new Promise(r => setTimeout(r, 500));
-        // Look for transcript option in the menu
         const menuItems = document.querySelectorAll('tp-yt-paper-listbox ytd-menu-service-item-renderer');
         for (const item of menuItems) {
           const text = item.textContent?.toLowerCase() || '';
           if (text.includes('transcript') || text.includes('文字起こし')) {
             item.click();
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 2500));
             break;
           }
         }
       }
     }
 
-    // Wait for the panel to appear
+    // Step 3: Wait for panel to appear
     return waitForElement(TRANSCRIPT_PANEL_SELECTORS, 8000);
   }
 
   /**
-   * Extract transcript segments from the panel
+   * Extract transcript segments from the panel.
+   * Supports both modern (2025+) and legacy YouTube DOM structures.
    */
   function extractSegments(panel) {
-    const segmentRenderers = panel.querySelectorAll('ytd-transcript-segment-renderer');
-    if (segmentRenderers.length === 0) return [];
+    // === Modern YouTube (2025+) ===
+    // Uses <transcript-segment-view-model> custom elements
+    const modernSegments = panel.querySelectorAll('transcript-segment-view-model');
+    if (modernSegments.length > 0) {
+      return Array.from(modernSegments)
+        .map(segment => {
+          // Timestamp: .ytwTranscriptSegmentViewModelTimestamp
+          const timestampEl = segment.querySelector('.ytwTranscriptSegmentViewModelTimestamp');
+          // Text: span.yt-core-attributed-string inside the segment
+          const textEl = segment.querySelector('span.yt-core-attributed-string')
+            || segment.querySelector('yt-attributed-string span')
+            || segment.querySelector('yt-formatted-string');
 
-    return Array.from(segmentRenderers)
-      .map(segment => {
-        const timestampEl = segment.querySelector('.segment-timestamp')
-          || segment.querySelector('[class*="timestamp"]')
-          || segment.querySelector('.segment-start-offset');
-        const textEl = segment.querySelector('.segment-text')
-          || segment.querySelector('[class*="segment-text"]');
+          const timestamp = timestampEl?.textContent?.trim() || '';
+          const text = textEl?.textContent?.trim() || '';
 
-        const timestamp = timestampEl?.textContent?.trim() || '';
-        const text = textEl?.textContent?.trim() || '';
+          if (!text) return null;
+          return { timestamp, text };
+        })
+        .filter(Boolean);
+    }
 
-        if (!text) return null;
-        return { timestamp, text };
-      })
-      .filter(Boolean);
+    // === Legacy YouTube ===
+    // Uses <ytd-transcript-segment-renderer> elements
+    const legacySegments = panel.querySelectorAll('ytd-transcript-segment-renderer');
+    if (legacySegments.length > 0) {
+      return Array.from(legacySegments)
+        .map(segment => {
+          const timestampEl = segment.querySelector('.segment-timestamp')
+            || segment.querySelector('[class*="timestamp"]');
+          const textEl = segment.querySelector('.segment-text')
+            || segment.querySelector('[class*="segment-text"]');
+
+          const timestamp = timestampEl?.textContent?.trim() || '';
+          const text = textEl?.textContent?.trim() || '';
+
+          if (!text) return null;
+          return { timestamp, text };
+        })
+        .filter(Boolean);
+    }
+
+    // === Fallback: generic text extraction from any child elements ===
+    // In case YouTube introduces yet another DOM structure
+    const anySegments = [];
+    const allTimestamps = panel.querySelectorAll('[class*="Timestamp"], [class*="timestamp"]');
+    for (const tsEl of allTimestamps) {
+      const parent = tsEl.closest('[class*="Segment"], [class*="segment"], [class*="timeline"]')
+        || tsEl.parentElement;
+      if (!parent) continue;
+
+      const timestamp = tsEl.textContent?.trim() || '';
+      // Skip accessibility labels like "18 秒"
+      if (timestamp.includes('秒') || timestamp.includes('sec')) continue;
+
+      // Find text sibling
+      const textEl = parent.querySelector('span:not([class*="Timestamp"]):not([class*="timestamp"]):not([class*="A11y"]):not([class*="a11y"])');
+      const text = textEl?.textContent?.trim() || '';
+
+      if (text && timestamp) {
+        anySegments.push({ timestamp, text });
+      }
+    }
+
+    return anySegments;
   }
 
   /**
@@ -207,10 +271,17 @@
       throw new Error('TRANSCRIPT_PANEL_NOT_FOUND');
     }
 
-    // Small delay for content to fully render
-    await new Promise(r => setTimeout(r, 500));
+    // Wait for segments to render inside the panel
+    await new Promise(r => setTimeout(r, 1000));
 
-    const segments = extractSegments(panel);
+    let segments = extractSegments(panel);
+
+    // Retry once if empty (panel may still be loading)
+    if (segments.length === 0) {
+      await new Promise(r => setTimeout(r, 2000));
+      segments = extractSegments(panel);
+    }
+
     if (segments.length === 0) {
       throw new Error('TRANSCRIPT_EMPTY');
     }
@@ -227,7 +298,7 @@
       .join('\n');
   }
 
-  // Expose API on window for panel and message handler access
+  // Expose API on window for panel script access
   window.__sumvid = {
     getTranscript,
     getVideoMetadata,
@@ -259,7 +330,7 @@
           });
         }
       })();
-      return true; // Keep channel open for async response
+      return true;
     }
 
     if (request.type === 'SUMVID_GET_METADATA') {

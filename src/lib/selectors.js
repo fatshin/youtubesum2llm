@@ -24,29 +24,38 @@ export const TRANSCRIPT_BUTTON_SELECTORS = [
   'button[aria-label="顯示逐字稿"]',
 ];
 
-// YouTube transcript segment selectors
+// YouTube transcript segment selectors (modern first, legacy fallback)
 export const TRANSCRIPT_SEGMENT_SELECTORS = [
+  // Modern YouTube (2025+)
+  'transcript-segment-view-model',
+  // Legacy YouTube
   'ytd-transcript-segment-renderer',
-  'ytd-transcript-segment-list-renderer .segment',
 ];
 
 export const TRANSCRIPT_TIMESTAMP_SELECTORS = [
+  // Modern YouTube (2025+)
+  '.ytwTranscriptSegmentViewModelTimestamp',
+  // Legacy YouTube
   '.segment-timestamp',
   '[class*="timestamp"]',
-  '.ytd-transcript-segment-renderer .segment-start-offset',
 ];
 
 export const TRANSCRIPT_TEXT_SELECTORS = [
+  // Modern YouTube (2025+)
+  'span.yt-core-attributed-string',
+  'yt-attributed-string span',
+  // Legacy YouTube
   '.segment-text',
   '[class*="segment-text"]',
-  '.ytd-transcript-segment-renderer .segment-text',
 ];
 
-// YouTube transcript panel
+// YouTube transcript panel (modern first, legacy fallback)
 export const TRANSCRIPT_PANEL_SELECTORS = [
-  '#segments-container',
-  'ytd-transcript-renderer #segments-container',
+  // Modern YouTube (2025+)
+  'ytd-engagement-panel-section-list-renderer[target-id="PAmodern_transcript_view"]',
+  // Legacy YouTube
   'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]',
+  '#segments-container',
 ];
 
 // YouTube video metadata selectors
