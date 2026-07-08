@@ -27,3 +27,4 @@ coverage/
 # Temporary
 *.tmp
 *.log
+.playwright-mcp/
