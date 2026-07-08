@@ -33,10 +33,9 @@
       'fieldset [contenteditable="true"]',
     ],
     'grok.com': [
-      'textarea[aria-label]',                        // 要検証
-      'form textarea',                                // 要検証(汎用)
-      'div[contenteditable="true"][role="textbox"]',  // 要検証(contenteditable型の場合)
-      'textarea[placeholder]',                        // 要検証(最終フォールバック)
+      'textarea[aria-label]',   // 確認済み(2026-07-08, Playwrightで実DOM確認)
+      'form textarea',          // フォールバック(汎用)
+      'textarea[placeholder]',  // フォールバック(最終)
     ],
   };
 
@@ -179,10 +178,10 @@
       'fieldset button[type="button"]:last-of-type',
     ],
     'grok.com': [
-      'button[type="submit"]',        // 要検証
-      'button[aria-label="Submit"]',  // 要検証(英語UI)
-      'button[aria-label="送信"]',     // 要検証(日本語UI)
-      'form button:last-of-type',     // 要検証(最終フォールバック)
+      'button[data-testid="chat-submit"]', // 確認済み(2026-07-08, Playwrightで実DOM確認)
+      'button[aria-label="送信"]',          // フォールバック(日本語UI)
+      'button[type="submit"]',              // フォールバック(汎用)
+      'form button:last-of-type',           // フォールバック(最終)
     ],
   };
 
