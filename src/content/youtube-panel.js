@@ -18,6 +18,7 @@
     gemini: { name: 'Gemini', url: 'https://gemini.google.com/app/new', icon: '\u2728' },
     chatgpt: { name: 'ChatGPT', url: 'https://chatgpt.com/?model=auto', icon: '\u{1F916}' },
     claude: { name: 'Claude', url: 'https://claude.ai/new', icon: '\u{1F7E0}' },
+    grok: { name: 'Grok', url: 'https://grok.com/', icon: '\u26a1' },
   };
 
   const BUILTIN_TEMPLATE_OPTIONS = [
@@ -257,6 +258,10 @@
     claude: {
       prefix: '<context>\nYouTube動画の文字起こしデータを分析してください。\n</context>\n\n',
       suffix: '\n\n<instructions>\n- 回答は全て日本語で出力\n- タイムスタンプは文字起こし内の実際の時刻をそのまま引用\n- 推測や捏造のタイムスタンプは絶対に使用しない\n- 構造化されたマークダウンで出力\n</instructions>',
+    },
+    grok: {
+      prefix: '',
+      suffix: '\n\n---\n注意: 回答は必ず日本語で。リアルタイム検索が利用可能な場合は事実検証に活用してください。マークダウンで構造化して出力してください。',
     },
   };
 
