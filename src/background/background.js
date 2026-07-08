@@ -3,20 +3,30 @@
  * Handles message routing, clipboard operations, tab management, and template serving.
  */
 
-import templates from '../lib/prompt-templates.json' with { type: 'json' };
-
-chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === 'install') {
-    chrome.storage.sync.set({
-      activeTemplate: 'summary',
-      settings: {
-        defaultAI: 'claude',
-        panelAutoOpen: false,
-        showTimestamps: true,
-        includeMetadata: true,
-      },
-    });
+/**
+ * Load templates on demand (Service Worker can sleep and lose in-memory state)
+ */
+async function loadTemplates() {
+  try {
+    const resp = await fetch(chrome.runtime.getURL('src/lib/prompt-templates.json'));
+    return await resp.json();
+  } catch (e) {
+    console.error('SumVid: failed to load templates', e);
+    return {};
   }
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  // Always reset defaults on install/update to ensure gemini is default
+  chrome.storage.sync.set({
+    activeTemplate: 'summary',
+    settings: {
+      defaultAI: 'gemini',
+      panelAutoOpen: false,
+      showTimestamps: true,
+      includeMetadata: true,
+    },
+  });
 });
 
 /**
@@ -71,6 +81,7 @@ async function openAIServiceAndPaste(serviceUrl, text) {
           chrome.tabs.sendMessage(tab.id, {
             type: 'SUMVID_PASTE',
             text,
+            autoSubmit: true,
           }, (response) => {
             if (chrome.runtime.lastError || !response?.success) {
               resolve({ success: false, fallback: 'clipboard' });
@@ -92,13 +103,6 @@ async function openAIServiceAndPaste(serviceUrl, text) {
   });
 }
 
-/**
- * Get a built-in template prompt by ID
- */
-function getBuiltinTemplate(templateId) {
-  return templates[templateId] || null;
-}
-
 // Central message router
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   switch (request.type) {
@@ -110,12 +114,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     }
 
     case 'SUMVID_OPEN_AI': {
-      copyToClipboard(request.text).then(async (copied) => {
-        if (!copied) {
-          sendResponse({ success: false, error: 'CLIPBOARD_FAILED' });
-          return;
-        }
-        const result = await openAIServiceAndPaste(request.serviceUrl, request.text);
+      copyToClipboard(request.text).catch(() => {});
+      openAIServiceAndPaste(request.serviceUrl, request.text).then((result) => {
         sendResponse(result);
       });
       return true;
@@ -123,12 +123,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
     case 'SUMVID_GET_TEMPLATE': {
       const templateId = request.id;
-      // Check custom templates first
+      // Check custom templates first, then load built-in on demand
       chrome.storage.sync.get('promptTemplates', (result) => {
         const customs = result.promptTemplates || {};
         const stored = customs[templateId];
 
-        // Handle both string and object storage formats
         if (typeof stored === 'string') {
           sendResponse({ success: true, prompt: stored });
           return;
@@ -138,21 +137,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           return;
         }
 
-        // Fall back to built-in
-        const builtin = getBuiltinTemplate(templateId);
-        if (builtin) {
-          sendResponse({ success: true, prompt: builtin.prompt });
-          return;
-        }
-
-        sendResponse({ success: false, error: 'TEMPLATE_NOT_FOUND' });
+        // Load built-in templates fresh every time (Service Worker may have slept)
+        loadTemplates().then(templates => {
+          const builtin = templates[templateId];
+          if (builtin) {
+            sendResponse({ success: true, prompt: builtin.prompt });
+          } else {
+            sendResponse({ success: false, error: 'TEMPLATE_NOT_FOUND' });
+          }
+        });
       });
       return true;
     }
 
     case 'SUMVID_GET_ALL_TEMPLATES': {
-      sendResponse({ success: true, templates });
-      return false;
+      loadTemplates().then(templates => {
+        sendResponse({ success: true, templates });
+      });
+      return true;
     }
   }
 });

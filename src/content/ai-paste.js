@@ -147,10 +147,62 @@
     return false;
   }
 
+  const AI_SUBMIT_SELECTORS = {
+    'chat.openai.com': [
+      'button[data-testid="send-button"]',
+      'form button[type="submit"]',
+      'button[aria-label="Send prompt"]',
+      'button[aria-label="プロンプトを送信"]',
+    ],
+    'chatgpt.com': [
+      'button[data-testid="send-button"]',
+      'form button[type="submit"]',
+      'button[aria-label="Send prompt"]',
+      'button[aria-label="プロンプトを送信"]',
+    ],
+    'gemini.google.com': [
+      'button[aria-label="Send message"]',
+      'button[aria-label="メッセージを送信"]',
+      'button.send-button',
+      '.send-button-container button',
+    ],
+    'claude.ai': [
+      'button[aria-label="Send Message"]',
+      'button[aria-label="メッセージを送信"]',
+      'button[type="button"][class*="send"]',
+      'fieldset button[type="button"]:last-of-type',
+    ],
+  };
+
+  /**
+   * Click the submit/send button after paste
+   */
+  async function clickSubmitButton() {
+    const host = window.location.hostname;
+    const selectors = AI_SUBMIT_SELECTORS[host];
+    if (!selectors) return false;
+
+    // Wait for the send button to become enabled after text insertion
+    for (let attempt = 0; attempt < 10; attempt++) {
+      await new Promise(r => setTimeout(r, 300));
+      for (const sel of selectors) {
+        const btn = document.querySelector(sel);
+        if (btn && !btn.disabled && btn.offsetParent !== null) {
+          console.log('SumVid: clicking submit button:', sel);
+          btn.click();
+          return true;
+        }
+      }
+    }
+
+    console.log('SumVid: submit button not found or not enabled');
+    return false;
+  }
+
   /**
    * Handle paste request from background/popup
    */
-  async function handlePasteRequest(text) {
+  async function handlePasteRequest(text, autoSubmit = false) {
     const host = window.location.hostname;
     const selectors = AI_INPUT_SELECTORS[host];
 
@@ -167,15 +219,23 @@
     await new Promise(r => setTimeout(r, 500));
 
     const inserted = insertText(inputEl, text);
-    return inserted
-      ? { success: true }
-      : { success: false, error: 'INSERT_FAILED' };
+    if (!inserted) {
+      return { success: false, error: 'INSERT_FAILED' };
+    }
+
+    // Auto-submit if requested
+    if (autoSubmit) {
+      const submitted = await clickSubmitButton();
+      return { success: true, submitted };
+    }
+
+    return { success: true, submitted: false };
   }
 
   // Message listener
   chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     if (request.type === 'SUMVID_PASTE') {
-      handlePasteRequest(request.text).then(sendResponse);
+      handlePasteRequest(request.text, request.autoSubmit !== false).then(sendResponse);
       return true;
     }
   });

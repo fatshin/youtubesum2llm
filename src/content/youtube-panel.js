@@ -15,16 +15,16 @@
   'use strict';
 
   const AI_SERVICES = {
-    chatgpt: { name: 'ChatGPT', url: 'https://chatgpt.com/', icon: '\u{1F916}' },
-    gemini: { name: 'Gemini', url: 'https://gemini.google.com/app', icon: '\u2728' },
+    gemini: { name: 'Gemini', url: 'https://gemini.google.com/app/new', icon: '\u2728' },
+    chatgpt: { name: 'ChatGPT', url: 'https://chatgpt.com/?model=auto', icon: '\u{1F916}' },
     claude: { name: 'Claude', url: 'https://claude.ai/new', icon: '\u{1F7E0}' },
   };
 
   const BUILTIN_TEMPLATE_OPTIONS = [
     { id: 'summary', icon: '\u{1F4DD}' },
+    { id: 'deepresearch', icon: '\u{1F50D}' },
     { id: 'keypoints', icon: '\u{1F3AF}' },
     { id: 'mindmap', icon: '\u{1F5FA}\uFE0F' },
-    { id: 'quiz', icon: '\u2753' },
     { id: 'translation', icon: '\u{1F310}' },
     { id: 'notes', icon: '\u{1F4DA}' },
   ];
@@ -37,7 +37,7 @@
     loading: false,
     activeTemplate: 'summary',
     settings: {
-      defaultAI: 'claude',
+      defaultAI: 'gemini',
       showTimestamps: true,
       includeMetadata: true,
     },
@@ -223,17 +223,44 @@
     });
   }
 
+  function escapeMarkdown(str) {
+    return (str || '').replace(/([#*_|`\[\]()\\~>+-])/g, '\\$1');
+  }
+
   function fillTemplate(prompt, data) {
+    // Wrap transcript in code fence to prevent prompt injection
+    const safeTranscript = data.transcript
+      ? '```transcript\n' + data.transcript.replace(/```/g, '` ` `') + '\n```'
+      : '';
+
     return prompt
       .replace(/\{\{VIDEO_URL\}\}/g, data.url || '')
-      .replace(/\{\{TRANSCRIPT\}\}/g, data.transcript || '')
-      .replace(/\{\{TITLE\}\}/g, data.title || '')
-      .replace(/\{\{CHANNEL\}\}/g, data.channel || '')
+      .replace(/\{\{TRANSCRIPT\}\}/g, safeTranscript)
+      .replace(/\{\{TITLE\}\}/g, escapeMarkdown(data.title))
+      .replace(/\{\{CHANNEL\}\}/g, escapeMarkdown(data.channel))
       .replace(/\{\{DURATION\}\}/g, data.duration || '')
       .replace(/\{\{DATE\}\}/g, data.date || '');
   }
 
-  async function generatePromptText() {
+  /**
+   * AI service-specific prompt optimization wrappers
+   */
+  const AI_PROMPT_WRAPPERS = {
+    gemini: {
+      prefix: '',
+      suffix: '\n\n---\n注意: 回答は必ず日本語で。Web検索が可能な場合は最新情報を検証に活用してください。',
+    },
+    chatgpt: {
+      prefix: '',
+      suffix: '\n\n---\nPlease respond entirely in Japanese (日本語). Use markdown formatting for clear structure.',
+    },
+    claude: {
+      prefix: '<context>\nYouTube動画の文字起こしデータを分析してください。\n</context>\n\n',
+      suffix: '\n\n<instructions>\n- 回答は全て日本語で出力\n- タイムスタンプは文字起こし内の実際の時刻をそのまま引用\n- 推測や捏造のタイムスタンプは絶対に使用しない\n- 構造化されたマークダウンで出力\n</instructions>',
+    },
+  };
+
+  async function generatePromptText(targetService) {
     const templatePrompt = await getTemplatePrompt(panelState.activeTemplate);
     const data = {
       ...panelState.metadata,
@@ -248,7 +275,15 @@
       data.date = '';
     }
 
-    return fillTemplate(templatePrompt, data);
+    let prompt = fillTemplate(templatePrompt, data);
+
+    // Apply AI service-specific optimization
+    const wrapper = AI_PROMPT_WRAPPERS[targetService];
+    if (wrapper) {
+      prompt = (wrapper.prefix || '') + prompt + (wrapper.suffix || '');
+    }
+
+    return prompt;
   }
 
   function setupEventListeners(panel) {
@@ -329,6 +364,12 @@
       renderTranscript(container, segments);
       setButtonsEnabled(panel, true);
       setStatus(panel, `${segments.length} segments`);
+
+      // Auto-send to default AI service after transcript extraction
+      const defaultAI = panelState.settings.defaultAI || 'gemini';
+      if (AI_SERVICES[defaultAI]) {
+        setTimeout(() => handleSendToAI(panel, defaultAI), 300);
+      }
     } catch (error) {
       const errorKey = error.message === 'TRANSCRIPT_PANEL_NOT_FOUND'
         ? 'errorNoTranscript'
@@ -345,13 +386,15 @@
     if (!panelState.transcript) return;
 
     try {
-      const promptText = await generatePromptText();
+      const defaultAI = panelState.settings.defaultAI || 'gemini';
+      const promptText = await generatePromptText(defaultAI);
       await navigator.clipboard.writeText(promptText);
       setStatus(panel, msg('statusCopied'));
     } catch {
+      const defaultAI = panelState.settings.defaultAI || 'gemini';
       chrome.runtime.sendMessage({
         type: 'SUMVID_CLIPBOARD_COPY',
-        text: await generatePromptText(),
+        text: await generatePromptText(defaultAI),
       }, (response) => {
         if (response?.success) {
           setStatus(panel, msg('statusCopied'));
@@ -368,32 +411,26 @@
     const service = AI_SERVICES[serviceKey];
     if (!service) return;
 
-    setStatus(panel, `${service.name}...`);
+    setStatus(panel, `${service.name} に送信中...`);
 
     try {
-      const promptText = await generatePromptText();
+      const promptText = await generatePromptText(serviceKey);
 
-      // Copy to clipboard first
+      // Copy to clipboard (best effort)
       try {
         await navigator.clipboard.writeText(promptText);
       } catch {
-        await new Promise((resolve) => {
-          chrome.runtime.sendMessage({ type: 'SUMVID_CLIPBOARD_COPY', text: promptText }, resolve);
-        });
+        chrome.runtime.sendMessage({ type: 'SUMVID_CLIPBOARD_COPY', text: promptText });
       }
 
-      // Open AI service and attempt auto-paste
+      // Open AI service - fire and forget, don't block on response
       chrome.runtime.sendMessage({
         type: 'SUMVID_OPEN_AI',
         serviceUrl: service.url,
         text: promptText,
-      }, (response) => {
-        if (response?.success) {
-          setStatus(panel, msg('statusSent', [service.name]));
-        } else {
-          setStatus(panel, msg('statusPasteManually'));
-        }
       });
+
+      setStatus(panel, `${service.name} にタブを開きました`);
     } catch (error) {
       setStatus(panel, msg('errorGeneric', [error.message]), true);
     }

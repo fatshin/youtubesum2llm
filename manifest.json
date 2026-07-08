@@ -46,8 +46,7 @@
     }
   ],
   "background": {
-    "service_worker": "src/background/background.js",
-    "type": "module"
+    "service_worker": "src/background/background.js"
   },
   "action": {
     "default_popup": "src/popup/popup.html",
@@ -65,7 +64,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "src/lib/prompt-templates.json",
         "src/content/youtube-panel.css"
       ],
       "matches": [
