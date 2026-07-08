@@ -32,6 +32,12 @@
       'div.ProseMirror[contenteditable="true"]',
       'fieldset [contenteditable="true"]',
     ],
+    'grok.com': [
+      'textarea[aria-label]',                        // 要検証
+      'form textarea',                                // 要検証(汎用)
+      'div[contenteditable="true"][role="textbox"]',  // 要検証(contenteditable型の場合)
+      'textarea[placeholder]',                        // 要検証(最終フォールバック)
+    ],
   };
 
   /**
@@ -172,13 +178,19 @@
       'button[type="button"][class*="send"]',
       'fieldset button[type="button"]:last-of-type',
     ],
+    'grok.com': [
+      'button[type="submit"]',        // 要検証
+      'button[aria-label="Submit"]',  // 要検証(英語UI)
+      'button[aria-label="送信"]',     // 要検証(日本語UI)
+      'form button:last-of-type',     // 要検証(最終フォールバック)
+    ],
   };
 
   /**
    * Click the submit/send button after paste
    */
   async function clickSubmitButton() {
-    const host = window.location.hostname;
+    const host = window.location.hostname.replace(/^www\./, '');
     const selectors = AI_SUBMIT_SELECTORS[host];
     if (!selectors) return false;
 
@@ -203,7 +215,7 @@
    * Handle paste request from background/popup
    */
   async function handlePasteRequest(text, autoSubmit = false) {
-    const host = window.location.hostname;
+    const host = window.location.hostname.replace(/^www\./, '');
     const selectors = AI_INPUT_SELECTORS[host];
 
     if (!selectors) {
