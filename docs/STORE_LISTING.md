@@ -4,7 +4,7 @@
 SumVid - Video Transcript & AI Summary
 
 ## Short Description (132 chars max)
-Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude for intelligent AI-powered summarization.
+Extract video transcripts with timestamps and send to ChatGPT, Gemini, Claude, or Grok for AI-powered summarization.
 
 ## Detailed Description
 
@@ -15,14 +15,14 @@ Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude
 **How it works:**
 1. Open any video with subtitles
 2. Click the SumVid panel in the sidebar
-3. Choose your AI service (ChatGPT, Gemini, or Claude)
+3. Choose your AI service (ChatGPT, Gemini, Claude, or Grok)
 4. Get an intelligent summary with timestamps
 
 **Key Features:**
 - Automatic transcript extraction with timestamps
-- One-click send to ChatGPT, Gemini, or Claude
+- One-click send to ChatGPT, Gemini, Claude, or Grok
 - Click timestamps to jump to specific moments in the video
-- 6 built-in prompt templates (Summary, Key Points, Mind Map, Quiz, Translation, Study Notes)
+- 6 built-in prompt templates (Summary, Deep Research, Key Points, Mind Map, Translation, Study Notes)
 - Fully customizable prompts
 - Native YouTube-integrated sidebar panel
 - Dark mode support
@@ -31,10 +31,10 @@ Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude
 - No data collection — your privacy is respected
 
 **Prompt Templates:**
-- Summary: Comprehensive analysis with key points and quotes
+- Summary: Quote-driven summary with timeline and key takeaways
+- Deep Research: Fact-check and in-depth analysis with source verification
 - Key Points: Extract the most important takeaways
 - Mind Map: Hierarchical topic structure
-- Quiz: Generate quiz questions for review
 - Translate & Summarize: Cross-language content analysis
 - Study Notes: Cornell method structured notes
 
@@ -42,6 +42,7 @@ Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude
 - ChatGPT (OpenAI)
 - Gemini (Google)
 - Claude (Anthropic)
+- Grok (xAI)
 
 **Privacy:** SumVid never collects your data. Transcripts stay in your browser until you choose to send them to an AI service.
 
@@ -52,14 +53,14 @@ Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude
 **使い方:**
 1. 字幕付きの動画を開く
 2. サイドバーのSumVidパネルをクリック
-3. AIサービスを選択（ChatGPT、Gemini、Claude）
+3. AIサービスを選択（ChatGPT、Gemini、Claude、Grok）
 4. タイムスタンプ付きのインテリジェントな要約を取得
 
 **主な機能:**
 - タイムスタンプ付き文字起こし自動取得
-- ChatGPT・Gemini・Claudeにワンクリック送信
+- ChatGPT・Gemini・Claude・Grokにワンクリック送信
 - タイムスタンプクリックで動画内ジャンプ
-- 6種類のプロンプトテンプレート（要約、キーポイント、マインドマップ、クイズ、���訳、学習ノート）
+- 6種類のプロンプトテンプレート（要約、深掘りリサーチ、キーポイント、マインドマップ、翻訳+要約、学習ノート）
 - プロンプト完全カスタマイズ対応
 - YouTube統合サイドバーパネル
 - ダークモード対応
@@ -74,4 +75,4 @@ Productivity
 English, Japanese
 
 ## Tags
-youtube, transcript, summary, ai, chatgpt, gemini, claude, subtitles, notes
+youtube, transcript, summary, ai, chatgpt, gemini, claude, grok, subtitles, notes
