@@ -33,9 +33,10 @@
       'fieldset [contenteditable="true"]',
     ],
     'grok.com': [
-      'textarea[aria-label]',   // 確認済み(2026-07-08, Playwrightで実DOM確認)
-      'form textarea',          // フォールバック(汎用)
-      'textarea[placeholder]',  // フォールバック(最終)
+      'textarea[aria-label]',                        // 確認済み(2026-07-08, Playwrightで実DOM確認)
+      'form textarea',                                // フォールバック(汎用)
+      'div[contenteditable="true"][role="textbox"]',  // フォールバック(将来contenteditable化した場合)
+      'textarea[placeholder]',                        // フォールバック(最終)
     ],
   };
 
