@@ -4,7 +4,7 @@
     "description": "Extension name shown in Chrome Web Store and browser"
   },
   "extDescription": {
-    "message": "Extract video transcripts with timestamps and send to ChatGPT, Gemini, or Claude for intelligent summarization.",
+    "message": "Extract video transcripts with timestamps and send to ChatGPT, Gemini, Claude, or Grok for intelligent summarization.",
     "description": "Extension description shown in Chrome Web Store"
   },
   "panelTitle": {
