@@ -1,6 +1,6 @@
 # SumVid Privacy Policy
 
-**Last Updated: April 2026**
+**Last Updated: July 2026**
 
 ## Overview
 
@@ -26,7 +26,7 @@ SumVid is a browser extension that extracts video transcripts and helps users se
 
 SumVid does not share any data with third parties.
 
-When you choose to send a transcript to an AI service (ChatGPT, Gemini, or Claude), the transcript text is placed in your clipboard or directly into the AI service's input field. This interaction is between you and the AI service — SumVid does not act as an intermediary.
+When you choose to send a transcript to an AI service (ChatGPT, Gemini, Claude, or Grok), the transcript text is placed in your clipboard or directly into the AI service's input field. This interaction is between you and the AI service — SumVid does not act as an intermediary.
 
 ## Third-Party Services
 
@@ -34,6 +34,7 @@ SumVid integrates with the following third-party AI services at your explicit re
 - **ChatGPT** (OpenAI) — https://chatgpt.com
 - **Gemini** (Google) — https://gemini.google.com
 - **Claude** (Anthropic) — https://claude.ai
+- **Grok** (xAI) — https://grok.com
 
 Your use of these services is governed by their respective privacy policies. SumVid does not have access to your accounts on these services.
 
