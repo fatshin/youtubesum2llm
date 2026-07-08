@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "permissions": [
@@ -16,7 +16,8 @@
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
     "https://gemini.google.com/*",
-    "https://claude.ai/*"
+    "https://claude.ai/*",
+    "https://grok.com/*"
   ],
   "content_scripts": [
     {
@@ -37,7 +38,8 @@
         "https://chatgpt.com/*",
         "https://chat.openai.com/*",
         "https://gemini.google.com/*",
-        "https://claude.ai/*"
+        "https://claude.ai/*",
+        "https://grok.com/*"
       ],
       "js": [
         "src/content/ai-paste.js"
