@@ -13,6 +13,7 @@
     { id: 'mindmap', icon: '🗺️', nameKey: 'templateMindmap', name: 'マインドマップ', desc: '階層的トピック構造' },
     { id: 'translation', icon: '🌐', nameKey: 'templateTranslation', name: '翻訳+要約', desc: '翻訳して要約' },
     { id: 'notes', icon: '📚', nameKey: 'templateNotes', name: '学習ノート', desc: 'コーネル式ノート' },
+    { id: 'podcast', icon: '🎙️', nameKey: 'templatePodcast', name: 'ポッドキャスト台本', desc: '30分1人語り台本(ファクトチェック付き)' },
   ];
 
   const DEFAULT_SETTINGS = {
