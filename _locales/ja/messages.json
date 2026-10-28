@@ -97,6 +97,10 @@
     "message": "デフォルトのAIサービス",
     "description": "デフォルトAI設定"
   },
+  "settingsAutoSend": {
+    "message": "文字起こし取得後に自動でAIへ送信",
+    "description": "自動送信設定"
+  },
   "settingsAutoOpen": {
     "message": "動画ページでパネルを自動表示",
     "description": "自動表示設定"

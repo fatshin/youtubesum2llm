@@ -17,7 +17,8 @@
   ];
 
   const DEFAULT_SETTINGS = {
-    defaultAI: 'claude',
+    defaultAI: 'gemini',
+    autoSend: false,
     panelAutoOpen: false,
     showTimestamps: true,
     includeMetadata: true,
@@ -218,6 +219,7 @@
 
     document.getElementById('settingDefaultAI').value = settings.defaultAI;
     document.getElementById('settingAutoOpen').checked = settings.panelAutoOpen;
+    document.getElementById('settingAutoSend').checked = settings.autoSend;
     document.getElementById('settingTimestamps').checked = settings.showTimestamps;
     document.getElementById('settingMetadata').checked = settings.includeMetadata;
   }
@@ -241,6 +243,10 @@
 
     document.getElementById('settingAutoOpen').addEventListener('change', (e) => {
       saveSetting('panelAutoOpen', e.target.checked);
+    });
+
+    document.getElementById('settingAutoSend').addEventListener('change', (e) => {
+      saveSetting('autoSend', e.target.checked);
     });
 
     document.getElementById('settingTimestamps').addEventListener('change', (e) => {

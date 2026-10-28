@@ -40,6 +40,7 @@
     activeTemplate: 'summary',
     settings: {
       defaultAI: 'gemini',
+      autoSend: false,
       showTimestamps: true,
       includeMetadata: true,
     },
@@ -371,9 +372,9 @@
       setButtonsEnabled(panel, true);
       setStatus(panel, `${segments.length} segments`);
 
-      // Auto-send to default AI service after transcript extraction
+      // Auto-send to default AI service only when the user opted in
       const defaultAI = panelState.settings.defaultAI || 'gemini';
-      if (AI_SERVICES[defaultAI]) {
+      if (panelState.settings.autoSend && AI_SERVICES[defaultAI]) {
         setTimeout(() => handleSendToAI(panel, defaultAI), 300);
       }
     } catch (error) {

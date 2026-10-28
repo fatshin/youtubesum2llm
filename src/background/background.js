@@ -22,6 +22,7 @@ chrome.runtime.onInstalled.addListener(() => {
     activeTemplate: 'summary',
     settings: {
       defaultAI: 'gemini',
+      autoSend: false,
       panelAutoOpen: false,
       showTimestamps: true,
       includeMetadata: true,
