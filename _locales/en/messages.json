@@ -97,6 +97,10 @@
     "message": "Default AI Service",
     "description": "Setting for default AI service"
   },
+  "settingsAutoSend": {
+    "message": "Auto-send to AI after fetching transcript",
+    "description": "Setting for auto-sending the prompt"
+  },
   "settingsAutoOpen": {
     "message": "Auto-open panel on video pages",
     "description": "Setting for auto-opening panel"
