@@ -148,5 +148,9 @@
   "panelExpand": {
     "message": "Expand panel",
     "description": "Tooltip for expand button"
+  },
+  "templatePodcast": {
+    "message": "Podcast Script",
+    "description": "Podcast script template name"
   }
 }

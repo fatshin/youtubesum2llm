@@ -148,5 +148,9 @@
   "panelExpand": {
     "message": "パネルを開く",
     "description": "展開ボタンのツールチップ"
+  },
+  "templatePodcast": {
+    "message": "ポッドキャスト台本",
+    "description": "Podcast script template name"
   }
 }

@@ -28,6 +28,7 @@
     { id: 'mindmap', icon: '\u{1F5FA}\uFE0F' },
     { id: 'translation', icon: '\u{1F310}' },
     { id: 'notes', icon: '\u{1F4DA}' },
+    { id: 'podcast', icon: '\u{1F399}️' },
   ];
 
   let panelState = {
